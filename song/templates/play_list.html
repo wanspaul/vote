@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-5">커버 완료곡 모음</h1>
+        <hr class="my-4">
+        <p>
+            많은분들이 추천해주신 곡들 중에서 부장님의 색깔을 고려하여 영상제작이 완료된 게시판입니다.
+        </p>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<table id="playTable" class="table">
+    <thead>
+        <th class="text-center">순서</th>
+        <th>신청곡 및 아티스트</th>
+        <th class="text-center">재생</th>
+    </thead>
+    <tbody>
+    {% for item in covered_songs %}
+        <tr>
+            <td class="text-center">{{ forloop.counter }}</td>
+            <td>{{ item.title }} | {{ item.artist }}</td>
+            <td class="text-center">
+                <a href="{{ item.play_link }}" class="btn btn-info btn-sm" target="_blank">재생하기</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        $("#playTable").DataTable({
+        iDisplayLength: 50,
+    });
+    </script>
+
+{% endblock %}

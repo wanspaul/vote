@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="jumbotron">
+    <h1 class="display-5">신청곡 게시판</h1>
+    <p>
+        요청해주시는 신청곡들은 부장님께서 다음 영상 제작에 도움이 될 수 있도록, 많은분들이 올려주신 의견과 트렌드를 살펴본 후, 부장님의 색깔을 고려하여 영상을 제작하는 방향으로 가고자 합니다.
+    </p>
+    <p>
+        듣고 싶으신 곡들이 많으시겠지만 여러 가지 사항들을 검토하여 영상을 제작할 예정이기 때문에 신청하신 곡 중에서 선정되는 곡이 없다고 하시더라도 너무 상심하지 않으셨으면 합니다. ^^;
+    </p>
+    <hr class="my-4">
+    <p>
+        신청곡 추가는 아래 신청곡 추가하기 버튼을 클릭해주세요.
+    </p>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#applySongModal">
+        신청곡 추가하기
+    </button>
+</div>
+{% endblock %}
+{% block content %}
+<table id="voteTable" class="table">
+    <thead>
+        <th class="text-center">순위</th>
+        <th>신청곡 및 아티스트</th>
+        <th class="text-right">투표수</th>
+        <th></th>
+    </thead>
+    <tbody>
+    {% for item in apply_songs %}
+        <tr>
+            <td class="text-center">{{ forloop.counter }}</td>
+            <td>{{ item.title }} | {{ item.artist }}</td>
+            <td class="text-right">{{ item.vote_count }} 표</td>
+            <td class="text-center">
+                <button type="button"
+                        data-id="{{ item.id }}"
+                        data-title="{{ item.title }}"
+                        data-artist="{{ item.artist }}"
+                        class="btn btn-info btn-sm">투표하기</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div id="applySongModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">신청곡 추가하기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form" action="{% url 'add_song' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label for="title" class="col-sm-4 col-form-label">신청곡</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="title" name="title" value="" placeholder="신청곡을 입력해주세요.">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="artist" class="col-sm-4 col-form-label">아티스트</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="artist" name="artist" value="" placeholder="아티스트명을 입력해주세요.">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="addSong" type="button" class="btn btn-primary">추가</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        $("#addSong").on("click", function() {
+            if($("#title").val() === "") {
+                alert("신청곡을 입력해주세요.");
+                $("#title").focus();
+                return false;
+            }
+            if($("#artist").val() === "") {
+                alert("아티스트명을 입력해주세요.");
+                $("#artist").focus();
+                return false;
+            }
+            $("#form").submit();
+        });
+        $(".btn-info").on("click", function () {
+            if(!confirm(`${this.dataset.title} | ${this.dataset.artist} 에 투표하시겠습니까?`))
+                return false;
+            $.ajax({
+                url: "{% url 'vote_song' %}",
+                dataType: "json",
+                type: "POST",
+                data: {
+                    "id": this.dataset.id,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function (response) {
+                    if (response.status == 0) {
+                        alert("투표가 완료되었습니다. 참여해주셔서 감사합니다.");
+                        location.reload();
+                    } else {
+                        alert("투표에 실패하였습니다. 반복되면 관리자에게 문의 바랍니다.");
+                    }
+                },
+                error: function (err) {
+                    alert("투표에 실패하였습니다. 반복되면 관리자에게 문의 바랍니다.");
+                }
+            });
+        });
+        $("#voteTable").DataTable({
+            iDisplayLength: 50,
+        });
+    </script>
+{% endblock %}
