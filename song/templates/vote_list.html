@@ -22,7 +22,7 @@
 <table id="voteTable" class="table">
     <thead>
         <th class="text-center">순위</th>
-        <th>신청곡 및 아티스트</th>
+        <th>신청곡</th>
         <th class="text-right">투표수</th>
         <th></th>
     </thead>
@@ -62,9 +62,9 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="artist" class="col-sm-4 col-form-label">아티스트</label>
+                        <label for="artist" class="col-sm-4 col-form-label">가수</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="artist" name="artist" value="" placeholder="아티스트명을 입력해주세요.">
+                            <input type="text" class="form-control" id="artist" name="artist" value="" placeholder="가수명을 입력해주세요.">
                         </div>
                     </div>
                 </form>
@@ -86,7 +86,7 @@
                 return false;
             }
             if($("#artist").val() === "") {
-                alert("아티스트명을 입력해주세요.");
+                alert("가수명을 입력해주세요.");
                 $("#artist").focus();
                 return false;
             }
