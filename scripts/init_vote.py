@@ -2,4 +2,4 @@ from song.models import ApplySong
 
 
 def run():
-    ApplySong.objects.filter(vote_count__lte=20).update(is_hidden=True)
+    ApplySong.objects.filter(cover_complete=False, vote_count__lte=20).update(is_hidden=True)

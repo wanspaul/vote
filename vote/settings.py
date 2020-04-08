@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'e#b$$+nr&8)wp2sbm@s5p$h-xd6@+kv%+==7zq4aqg50xe#9s1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "*",
@@ -123,3 +123,5 @@ COOKIE_DOMAIN = "xn--zf0bp50cqzj.com"
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
+
+GOOGLE_RECAPTCHA_SECRET_KEY = "6LfX0OcUAAAAALNy_fUvsAy7RbqsZPNxNaTsnYOV"

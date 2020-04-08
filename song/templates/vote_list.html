@@ -67,10 +67,42 @@
                             <input type="text" class="form-control" id="artist" name="artist" value="" placeholder="가수명을 입력해주세요.">
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label for="artist" class="col-sm-4 col-form-label"></label>
+                        <div class="col-sm-8">
+                            <div class="g-recaptcha" data-sitekey="6LfX0OcUAAAAAMLOx4fWRpFECdken8CHS-Q5OFgG"></div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button id="addSong" type="button" class="btn btn-primary">추가</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="voteSongModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">투표하기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="voteForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="id" name="id" value="" />
+                    <div class="panel-body">
+                        <span id="songInfo"></span> 에 투표하시겠습니까?
+                        <div class="g-recaptcha" data-sitekey="6LfX0OcUAAAAAMLOx4fWRpFECdken8CHS-Q5OFgG"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="voteSong" type="button" class="btn btn-primary">투표</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
             </div>
         </div>
@@ -90,19 +122,24 @@
                 $("#artist").focus();
                 return false;
             }
+            var resp = grecaptcha.getResponse();
+            if(resp.length === 0) {
+                alert("로봇이 아닙니다를 체크해주세요.");
+                return false;
+            }
             $("#form").submit();
         });
-        $(".btn-info").on("click", function () {
-            if(!confirm(`${this.dataset.title} | ${this.dataset.artist} 에 투표하시겠습니까?`))
-                return false;
+        $("#voteSong").on("click", function() {
+            var voteForm = $('#voteForm')[0];
+            var data = new FormData(voteForm);
+
             $.ajax({
                 url: "{% url 'vote_song' %}",
-                dataType: "json",
+                enctype: 'multipart/form-data',
                 type: "POST",
-                data: {
-                    "id": this.dataset.id,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
+                data: data,
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     if (response.status == 0) {
                         alert("투표가 완료되었습니다. 참여해주셔서 감사합니다.");
@@ -110,6 +147,8 @@
                     } else {
                         if(response.status === 400) {
                             alert("하루에 3번까지 투표하실 수 있습니다.")
+                        } else if(response.status === 405) {
+                            alert("투표에 실패하였습니다. 로봇에 의한 반복적인 투표를 금합니다.");
                         } else {
                             alert("투표에 실패하였습니다. 반복되면 관리자에게 문의 바랍니다.");
                         }
@@ -119,6 +158,12 @@
                     alert("투표에 실패하였습니다. 반복되면 관리자에게 문의 바랍니다.");
                 }
             });
+
+        });
+        $(".btn-info").on("click", function () {
+            $("#id").val(this.dataset.id);
+            $("#songInfo").html(`${this.dataset.title} | ${this.dataset.artist}`);
+            $("#voteSongModal").modal();
         });
         $("#voteTable").DataTable({
             iDisplayLength: 50,
