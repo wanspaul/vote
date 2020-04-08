@@ -1,5 +1,5 @@
 import json
-import urllib
+from urllib import request, parse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -26,9 +26,9 @@ def check_recaptcha(request):
         'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
         'response': recaptcha_response
     }
-    data = urllib.parse.urlencode(values).encode()
-    req = urllib.request.Request(url, data=data)
-    response = urllib.request.urlopen(req)
+    data = parse.urlencode(values).encode()
+    req = request.Request(url, data=data)
+    response = request.urlopen(req)
     result = json.loads(response.read().decode())
 
     if not result['success']:
